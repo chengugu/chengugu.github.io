@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2SGame Studio</title>
+    <style>
+        /* 核心全局样式 */
+        body { 
+            background-color: #0f172a; 
+            color: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.5;
+        }
+        a { text-decoration: none; color: inherit; }
+        
+        /* 导航栏 */
+        nav {
+            background-color: #0f172a;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid #1e293b;
+        }
+        .nav-container {
+            max-w: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo-area { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 20px; color: #818cf8; }
+        .nav-links { display: flex; gap: 24px; font-size: 14px; color: #94a3b8; }
+        .nav-links a:hover { color: #818cf8; transition: 0.2s; }
+        .play-link { color: #818cf8; font-weight: 600; }
+
+        /* 主视觉区 */
+        header {
+            text-align: center;
+            padding: 80px 20px;
+            background: radial-gradient(circle at center, rgba(99,102,241,0.1) 0%, transparent 60%);
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #818cf8;
+            background-color: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 9999px;
+        }
+        h1 { font-size: 42px; font-weight: 800; margin: 24px 0 16px 0; color: #ffffff; letter-spacing: -0.025em; }
+        .hero-p { max-w: 650px; margin: 0 auto; color: #94a3b8; font-size: 18px; }
+
+        /* 试玩区 */
+        .demo-section { max-w: 850px; margin: 0 auto; padding: 0 20px 40px 20px; }
+        .card-wrapper { background-color: #1e293b; border-radius: 16px; padding: 20px; border: 1px solid #334155; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+        .demo-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .live-status { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 600; color: #cbd5e1; }
+        .dot { width: 12px; height: 12px; background-color: #10b981; border-radius: 50%; display: inline-block; }
+        .demo-tech { font-size: 12px; color: #64748b; }
+        .video-container { position: relative; width: 100%; aspect-ratio: 16/9; background-color: #020617; border-radius: 12px; overflow: hidden; border: 1px solid #1e293b; }
+        iframe { width: 100%; height: 100%; border: 0; }
+
+        /* 游戏列表区 */
+        main { max-w: 1100px; margin: 0 auto; padding: 60px 20px; }
+        .section-title { font-size: 24px; font-weight: 700; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+        .title-bar { width: 8px; height: 24px; background-color: #6366f1; border-radius: 4px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px; }
+        
+        /* 游戏卡片样式核心修复 */
+        .game-card { background-color: #1e293b; border-radius: 16px; overflow: hidden; border: 1px solid #334155; transition: 0.3s; }
+        .game-card:hover { border-color: #6366f1; transform: translateY(-2px); }
+        .card-banner { height: 192px; background-color: #334155; display: flex; align-items: center; justify-content: center; color: #475569; transition: background 0.3s; }
+        .game-card:hover .card-banner { background-color: #475569; color: #94a3b8; }
+        .card-body { padding: 24px; }
+        .card-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 12px; }
+        .game-title { font-size: 20px; font-weight: 700; color: #ffffff; margin: 0; flex-shrink: 0; }
+        .platform-tag { padding: 2px 8px; font-size: 12px; background-color: rgba(16, 185, 129, 0.1); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 4px; font-weight: 600; white-space: nowrap; }
+        .game-desc { font-size: 14px; color: #94a3b8; margin-top: 0; margin-bottom: 24px; line-height: 1.6; text-align: left; }
+        .status-text { font-size: 12px; color: #64748b; text-align: left; }
+        .status-highlight { color: #6366f1; font-weight: 600; }
+
+        /* 页脚 */
+        footer { border-top: 1px solid #1e293b; background-color: #020617; padding: 48px 20px; font-size: 14px; color: #64748b; }
+        .footer-container { max-w: 1100px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
+        @media (min-width: 768px) {
+            .footer-container { flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+        .footer-left p { margin: 0; }
+        .footer-sub { font-size: 12px; color: #475569; margin-top: 4px; }
+        .footer-links { display: flex; gap: 24px; }
+        .footer-links a { text-decoration: underline; }
+        .footer-links a:hover { color: #cbd5e1; }
+    </style>
+</head>
+<body>
+
+    <!-- 导航栏 -->
+    <nav>
+        <div class="nav-container">
+            <div class="logo-area">
+                <svg style="width:28px; height:28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+                <span>C2SGame Studio</span>
+            </div>
+            <div class="nav-links">
+                <a href="#games">Games</a>
+                <a href="#play-now" class="play-link">🎮 Play Now</a>
+                <a href="./privacy.html">Privacy Policy</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 主视觉区 -->
+    <header>
+        <span class="badge">Indie Game Developer</span>
+        <h1>Crafting Next-Gen Casual Experiences</h1>
+        <p class="hero-p">We are a passionate independent game studio dedicated to building fun, engaging, and innovative HTML5 & Android mobile games for global players.</p>
+    </header>
+
+
+
+    <!-- 实时游戏试玩区 (方案一：略小于屏幕，自适应极佳) -->
+        <!-- 实时游戏试玩区 (带游戏自主切换功能) -->
+    <section id="play-now" style="width: 92vw; max-width: 1200px; margin: 0 auto; padding: 20px 0;">
+        <div class="card-wrapper" style="padding: 12px; border-radius: 16px;">
+            <div class="demo-header" style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div class="live-status">
+                        <span class="dot"></span>
+                        <span>Live Demo Room</span>
+                    </div>
+                    <span class="demo-tech">Powered by HTML5 Engine</span>
+                </div>
+                
+                <!-- 👇 新增：游戏选择按钮菜单 -->
+                <div style="display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
+                    <!-- 按钮 1：默认激活状态 (带有 active-btn 样式类) -->
+                    <button class="game-selector-btn active-btn" onclick="switchGame('https://chengugu.github.io/findCowNew/index.html', this)">
+                        Find The Cow
+                    </button>
+                    <!-- 按钮 2：备选游戏 (你可以把链接换成你的另一款游戏) -->
+                    <button class="game-selector-btn" onclick="switchGame('https://chengugu.github.io/loveColor/index.html', this)">
+                        Love Color: Tap to Paint
+                    </button>
+                    <!-- 按钮 3：如果你有第三款，可以照着这个格式继续加 -->
+                </div>
+            </div>
+
+            <!-- 游戏嵌入框架窗口 -->
+            <div class="video-container" style="width: 100%; height: 65vh; min-height: 350px; max-height: 700px; border-radius: 12px;">
+                <iframe 
+                    src="https://chengugu.github.io/findCowNew/index.html" 
+                    id="game-frame"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            <p style="text-align: center; font-size: 12px; color: #64748b; margin-top: 10px; margin-bottom: 0;">
+                💡 Tip: Click the buttons above to switch games, then click inside the box to play.
+            </p>
+        </div>
+    </section>
+
+    <!-- 👇 必须把这一段控制切换的 CSS 和 JS 脚本放在页面的任意位置（比如紧跟在上面这段代码后面即可） -->
+    <style>
+        /* 切换按钮的基础样式与高亮动效 */
+        .game-selector-btn {
+            background-color: #0f172a;
+            color: #94a3b8;
+            border: 1px solid #334155;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .game-selector-btn:hover {
+            border-color: #6366f1;
+            color: #ffffff;
+        }
+        /* 被选中时的激活高亮状态（紫色底、白字） */
+        .active-btn {
+            background-color: #6366f1 !important;
+            border-color: #6366f1 !important;
+            color: #ffffff !important;
+        }
+    </style>
+
+    <script>
+        // 控制游戏链接动态切换的的核心 JavaScript 函数
+        function switchGame(gameUrl, buttonElement) {
+            // 1. 找到页面上的 iframe 窗口，并替换它的 src 链接
+            document.getElementById('game-frame').src = gameUrl;
+            
+            // 2. 移除所有选择按钮的高亮色
+            const buttons = document.querySelectorAll('.game-selector-btn');
+            buttons.forEach(btn => btn.classList.remove('active-btn'));
+            
+            // 3. 给当前被点击的按钮加上高亮色
+            buttonElement.classList.add('active-btn');
+        }
+    </script>
+
+
+    
+
+    <!-- 游戏展示区 -->
+    <!-- 游戏展示区 -->
+    <!-- 游戏展示区 (卡片强制靠左排列版) -->
+    <main id="games">
+        <div class="section-title">
+            <div class="title-bar"></div>
+            <span>Our Featured Games</span>
+        </div>
+        
+        <!-- 
+          💡 核心修复：
+          1. 去掉原本失效或分散的 grid-container 类。
+          2. justify-content: flex-start 确保所有卡片强制从左边开始排。
+          3. gap: 24px 锁死了两张卡片之间的物理间距为 24 像素，绝对不会再裂开大缝。
+        -->
+        <div style="display: flex; flex-direction: row; justify-content: flex-start; align-items: flex-start; gap: 24px; flex-wrap: wrap; width: 100%; box-sizing: border-box;">
+            
+            <!-- ==================== 游戏卡片 1 (Find The Cow) ==================== -->
+            <div class="game-card" style="position: relative; width: 100%; max-width: 500px; height: auto; aspect-ratio: 16 / 9; overflow: hidden; background-color: #020617; border-radius: 16px; box-sizing: border-box; flex-shrink: 0;">
+                <!-- 海报图片背景层 -->
+                <div class="card-banner" style="width: 100%; height: 100%; margin: 0; padding: 0; background-color: transparent;">
+                    <img src="./cover_1.jpg" alt="Find The Cow Cover" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <!-- 悬浮文字层 -->
+                <div class="dynamic-card-body">
+                    <div class="card-header-row" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="game-title" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-size: 22px; margin: 0;">Find The Cow</h3>
+                        <span class="platform-tag" style="box-shadow: 0 2px 4px rgba(0,0,0,0.3);">Android / Web</span>
+                    </div>
+                    <p class="game-desc" style="margin: 0; font-size: 13.5px; color: #cbd5e1; text-shadow: 0 1px 2px rgba(0,0,0,0.6); text-align: left;">
+                        Find The Cow is a minimalist grid-based deduction game. Your goal is to find all the hidden calves while following strict logical constraints: each row, each column, and each color zone must contain exactly one calf, and no two calves can be neighbors.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ==================== 游戏卡片 2 (Love Color: Tap to Paint) ==================== -->
+            <div class="game-card" style="position: relative; width: 100%; max-width: 500px; height: auto; aspect-ratio: 16 / 9; overflow: hidden; background-color: #020617; border-radius: 16px; box-sizing: border-box; flex-shrink: 0;">
+                <!-- 游戏封面图层 -->
+                <div class="card-banner" style="width: 100%; height: 100%; margin: 0; padding: 0; background-color: #1e293b; display: flex; align-items: center; justify-content: center; color: #475569;">
+                    <img src="./cover_2.jpg" alt="Find The Cow Cover" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <!-- 悬浮文字层 -->
+                <div class="dynamic-card-body">
+                    <div class="card-header-row" style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="game-title" style="text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-size: 22px; margin: 0;">Love Color: Tap to Paint</h3>
+                        <span class="platform-tag" style="box-shadow: 0 2px 4px rgba(0,0,0,0.3);">Android / Web</span>
+                    </div>
+                    <p class="game-desc" style="margin: 0; font-size: 13.5px; color: #cbd5e1; text-shadow: 0 1px 2px rgba(0,0,0,0.6); text-align: left;">
+                        Immerse yourself in a beautiful, relaxing anime world where coloring is as simple as a single tap! If you love anime girls, cute pixel art, and satisfying coloring mechanics, this is the perfect game for you to unwind.
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+
+    <!-- 👇 必须把这一段控制动画和隐藏滚动条的专用样式贴在后面（或者放进页面的 <style> 标签里） -->
+    <style>
+        /* 动态文字层基础状态：默认缩回底部，只露出标题 */
+        .dynamic-card-body {
+            position: absolute; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            padding: 20px; 
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.8) 60%, transparent 100%);
+            backdrop-filter: blur(4px); 
+            -webkit-backdrop-filter: blur(4px);
+            /* 核心动画控制 */
+            transform: translateY(65px); /* 默认下移，隐藏长文字描述 */
+            transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+            box-sizing: border-box;
+            max-height: 75%;
+            overflow-y: auto;
+        }
+
+        /* 鼠标悬停在卡片上，或者手机端点击时，文字层丝滑平滑滑起 */
+        .game-card:hover .dynamic-card-body {
+            transform: translateY(0);
+        }
+
+        /* 完美隐藏所有主流浏览器的内部纵向滚动条，保证视觉极其干净 */
+        .dynamic-card-body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+        .dynamic-card-body {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+
+
+
+
+    <!-- 页脚 -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <p>&copy; 2026 C2SGame Studio. All rights reserved.</p>
+                <div class="footer-sub">Authorized AppLovin & Catappult Developer Website.</div>
+            </div>
+            <div class="footer-links">
+                <a href="./privacy.html">Privacy Policy</a>
+                <!-- <a href="/app-ads.txt">app-ads.txt</a> -->
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
